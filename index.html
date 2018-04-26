@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    .myCanvas{
+        border:1px solid red;
+    }
+</style>
+<body>
+    <canvas class="myCanvas" id="myCanvas" width="600" height="600"></canvas>
+    <script>
+    
+    var makeImgByDir = function(src) {
+        var img = document.createElement('img');
+        img.src = src
+        myCanvas.appendChild(img);
+        return img
+    }
+    var Paddle = function() {
+        var o = {
+            img: makeImgByDir('./paddle.png'),
+            x: 100,
+            y: 400,
+            speed: 10,
+        }
+        o.moveRight = function(){
+            o.x += o.speed
+        }
+        o.moveLeft = function(){
+            o.x -= o.speed
+        }
+        
+        return o;
+    }    
+    var Game = function() {
+        var g = {
+            actions:{},
+            keydowns:{}
+        };
+        g.myCanvas = document.getElementById("myCanvas");
+        g.ctx = myCanvas.getContext("2d");
+
+        window.addEventListener('keydown', function(e){
+            g.keydowns[e.key] = true
+        })
+
+        window.addEventListener('keyup', function(e){
+            g.keydowns[e.key] = false
+        })
+
+        g.registerAction = function(key, callback) {
+             g.actions[key] = callback
+        }
+        g.drawImage = function(image){
+            g.ctx.drawImage(image.img, image.x, image.y);
+        }
+        setInterval(function(){ 
+            for (let key in g.keydowns) {
+                if (g.keydowns[key]) {
+                    g.actions[key] && g.actions[key]()
+                }
+            }
+            g.ctx.clearRect(0, 0, g.myCanvas.width, g.myCanvas.height)
+            g.draw()
+        },1000/30)
+        return g;
+    }
+    var __main = function () {
+        var paddle = Paddle();
+        var g = Game();
+        g.registerAction('a',function(){
+            paddle.moveLeft()
+        })
+        g.registerAction('d',function(){
+            paddle.moveRight()
+        })
+        g.draw = function(){
+            g.drawImage(paddle)
+        } 
+    }
+    __main()
+    </script>
+</body>
+</html>
