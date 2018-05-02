@@ -36,7 +36,32 @@
         }
         
         return o;
-    }    
+    }   
+    var Ball = function(){
+        var o = {
+            img: makeImgByDir('./ball.png'),
+            x: 100,
+            y: 360,
+            speedX: 10,
+            speedY: 5,
+        }
+        o.move = function(){
+            if (o.x >= (600 - o.img.width) || o.x <= 0){
+                o.speedX *= -1
+            }
+            if (o.y <= 0){
+                o.speedY *= -1
+            }
+            o.x += o.speedX;
+            o.y -= o.speedY;
+        }
+        o.collide = function(object){
+            if (object.x + object.img.width >= o.x && o.x >= object.x && o.y + o.img.height >= object.y) {
+                o.speedY *= -1
+            }
+        }
+        return o
+    } 
     var Game = function() {
         var g = {
             actions:{},
@@ -66,12 +91,14 @@
                 }
             }
             g.ctx.clearRect(0, 0, g.myCanvas.width, g.myCanvas.height)
+            g.update()
             g.draw()
         },1000/30)
         return g;
     }
     var __main = function () {
         var paddle = Paddle();
+        var ball = Ball();
         var g = Game();
         g.registerAction('a',function(){
             paddle.moveLeft()
@@ -79,8 +106,13 @@
         g.registerAction('d',function(){
             paddle.moveRight()
         })
+        g.update = function(){
+            ball.move()
+            ball.collide(paddle)
+        }
         g.draw = function(){
             g.drawImage(paddle)
+            g.drawImage(ball)
         } 
     }
     __main()
